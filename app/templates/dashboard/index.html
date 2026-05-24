@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Citation Builder{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="value">{{ total_businesses }}</div>
+        <div class="label">Total Businesses</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_submissions }}</div>
+        <div class="label">Total Submissions</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ completed }}</div>
+        <div class="label">Completed</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ failed }}</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ pending }}</div>
+        <div class="label">Pending</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ in_progress }}</div>
+        <div class="label">In Progress</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ success_rate }}%</div>
+        <div class="label">Success Rate</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ captcha_count }}</div>
+        <div class="label">CAPTCHA Blocked</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Quick Actions</h2>
+    <div class="actions mt-2">
+        <a href="{{ url_for('business.create_business') }}" class="btn btn-primary">+ New Business</a>
+        <a href="{{ url_for('business.list_businesses') }}" class="btn btn-success">View All Businesses</a>
+        <a href="{{ url_for('directory.list_directories') }}" class="btn btn-primary">Browse Directories</a>
+    </div>
+</div>
+{% endblock %}

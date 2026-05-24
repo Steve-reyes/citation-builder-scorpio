@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Directories - Citation Builder{% endblock %}
+{% block content %}
+<h1>Business Directories ({{ total }})</h1>
+
+<div class="filters">
+    <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label>Search</label>
+            <input type="text" name="search" value="{{ search }}" placeholder="Directory name...">
+        </div>
+        <div>
+            <label>Category</label>
+            <select name="category">
+                <option value="">All</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Difficulty</label>
+            <select name="difficulty">
+                <option value="">All</option>
+                {% for d in difficulties %}
+                <option value="{{ d }}" {% if difficulty_filter == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Province</label>
+            <select name="province">
+                <option value="">All / National</option>
+                {% for p in provinces %}
+                <option value="{{ p }}" {% if province_filter == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('directory.list_directories') }}" class="btn btn-sm">Clear</a>
+    </form>
+</div>
+
+{% if directories %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Difficulty</th>
+            <th>Province Focus</th>
+            <th>CAPTCHA</th>
+            <th>Submission URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in directories %}
+        <tr>
+            <td><strong>{{ d.name }}</strong></td>
+            <td><span class="badge badge-active">{{ d.category }}</span></td>
+            <td>
+                {% if d.difficulty == 'easy' %}<span style="color:#2e7d32;">Easy</span>
+                {% elif d.difficulty == 'medium' %}<span style="color:#e65100;">Medium</span>
+                {% elif d.difficulty == 'hard' %}<span style="color:#c62828;">Hard</span>
+                {% else %}{{ d.difficulty }}{% endif %}
+            </td>
+            <td>{{ d.province_focus|join(', ') if d.province_focus else 'National' }}</td>
+            <td>{% if d.requires_captcha %}⚠️ Yes{% else %}-{% endif %}</td>
+            <td><a href="{{ d.submission_url }}" target="_blank" style="font-size:0.85rem;">{{ d.submission_url[:50] }}...</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="card">
+    <p class="text-muted">No directories match your filters.</p>
+</div>
+{% endif %}
+{% endblock %}

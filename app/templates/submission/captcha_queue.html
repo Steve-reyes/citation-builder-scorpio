@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}CAPTCHA Queue - Citation Builder{% endblock %}
+{% block content %}
+<h1>CAPTCHA Queue</h1>
+<p class="text-muted">Directories that need manual CAPTCHA solving. Click screenshot to view, click Guide to submit manually.</p>
+
+{% if submissions %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Directory</th>
+            <th>Status</th>
+            <th>Guide</th>
+            <th>Screenshot</th>
+            <th>Business</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in submissions %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.directory_name }}</td>
+            <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+            <td>{% if s.guide_url %}<a href="{{ s.guide_url }}" target="_blank" class="btn btn-sm btn-outline">Open</a>{% else %}-{% endif %}</td>
+            <td>{% if s.screenshot_path %}<a href="{{ url_for('static', filename=s.screenshot_path) }}" target="_blank" class="btn btn-sm btn-outline">View</a>{% else %}-{% endif %}</td>
+            <td><a href="{{ url_for('business.view_business', id=s.business_id) }}">{{ s.business_id }}</a></td>
+            <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('submission.captcha_queue', page=pagination.prev_num) }}">&laquo; Prev</a>
+    {% endif %}
+    {% for p in pagination.iter_pages() %}
+        {% if p %}
+        <a href="{{ url_for('submission.captcha_queue', page=p) }}" {% if p == pagination.page %}class="current"{% endif %}>{{ p }}</a>
+        {% else %}
+        <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <a href="{{ url_for('submission.captcha_queue', page=pagination.next_num) }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <p class="text-muted">No CAPTCHA-flagged submissions.</p>
+</div>
+{% endif %}
+{% endblock %}

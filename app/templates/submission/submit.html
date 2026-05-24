@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Submit {{ business.business_name }} - Citation Builder{% endblock %}
+{% block content %}
+<h1>Submit Business: {{ business.business_name }}</h1>
+
+<div class="card">
+    <h2>Business Details</h2>
+    <table>
+        <tr><td>Name</td><td>{{ business.business_name }}</td></tr>
+        <tr><td>Phone</td><td>{{ business.phone or '-' }}</td></tr>
+        <tr><td>Address</td><td>{{ business.address or '-' }}</td></tr>
+        <tr><td>City</td><td>{{ business.city or '-' }}</td></tr>
+        <tr><td>Province</td><td>{{ business.province or '-' }}</td></tr>
+        <tr><td>Postal Code</td><td>{{ business.postal_code or '-' }}</td></tr>
+        <tr><td>Website</td><td>{{ business.website or '-' }}</td></tr>
+        <tr><td>Categories</td><td>{{ business.categories or '-' }}</td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Select Directories</h2>
+    <p class="text-muted mb-2">Choose directories to submit to. A submission record will be created for each selected directory.</p>
+
+    <form method="POST" action="{{ url_for('submission.start_submission', id=business.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div style="margin-bottom: 1rem;">
+            <button type="button" onclick="toggleAll(true)" class="btn btn-sm">Select All</button>
+            <button type="button" onclick="toggleAll(false)" class="btn btn-sm">Deselect All</button>
+            <button type="button" onclick="selectPending()" class="btn btn-sm">Select Pending Only</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;"><input type="checkbox" id="select-all" onchange="toggleAll(this.checked)"></th>
+                    <th>Directory</th>
+                    <th>Category</th>
+                    <th>Difficulty</th>
+                    <th>Status</th>
+                    <th>CAPTCHA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in directories %}
+                {% set status = existing.get(d.name, 'not_started') %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="directories" value="{{ d.name }}"
+                            class="dir-checkbox"
+                            {% if status == 'pending' or status == 'failed' %}checked{% endif %}
+                            {% if status == 'completed' or status == 'in_progress' %}disabled{% endif %}>
+                    </td>
+                    <td>{{ d.name }}</td>
+                    <td><span class="badge badge-active">{{ d.category }}</span></td>
+                    <td>
+                        {% if d.difficulty == 'easy' %}<span style="color:#2e7d32;">Easy</span>
+                        {% elif d.difficulty == 'medium' %}<span style="color:#e65100;">Medium</span>
+                        {% elif d.difficulty == 'hard' %}<span style="color:#c62828;">Hard</span>
+                        {% else %}{{ d.difficulty }}{% endif %}
+                    </td>
+                    <td>
+                        {% if status == 'not_started' %}<span class="badge badge-pending">New</span>
+                        {% else %}<span class="badge badge-{{ status }}">{{ status }}</span>{% endif %}
+                    </td>
+                    <td>{% if d.requires_captcha %}⚠️{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="actions mt-2">
+            <button type="submit" class="btn btn-success">Start Submission</button>
+            <a href="{{ url_for('business.view_business', id=business.id) }}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleAll(checked) {
+    document.querySelectorAll('.dir-checkbox:not(:disabled)').forEach(cb => cb.checked = checked);
+    document.getElementById('select-all').checked = checked;
+}
+function selectPending() {
+    document.querySelectorAll('.dir-checkbox').forEach(cb => {
+        if (!cb.disabled) cb.checked = true;
+    });
+}
+</script>
+{% endblock %}

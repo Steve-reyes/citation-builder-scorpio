@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Local SEO Citation Builder{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .navbar {
+            background: #1a237e;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .navbar a { color: #fff; text-decoration: none; }
+        .navbar .brand { font-size: 1.3rem; font-weight: 700; }
+        .navbar .nav-links { display: flex; gap: 1.5rem; }
+        .navbar .nav-links a:hover { text-decoration: underline; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .flash-messages { margin-bottom: 1rem; }
+        .flash {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+        .flash.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .flash.danger { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .flash.warning { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+        .flash.info { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-card .value { font-size: 2rem; font-weight: 700; }
+        .stat-card .label { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary { background: #1a237e; color: #fff; }
+        .btn-success { background: #2e7d32; color: #fff; }
+        .btn-danger { background: #c62828; color: #fff; }
+        .btn-warning { background: #e65100; color: #fff; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th { background: #f5f5f5; font-weight: 600; }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-draft { background: #e0e0e0; color: #616161; }
+        .badge-active, .badge-completed { background: #e8f5e9; color: #2e7d32; }
+        .badge-paused, .badge-skipped { background: #fff3e0; color: #e65100; }
+        .badge-pending { background: #e3f2fd; color: #1565c0; }
+        .badge-in_progress { background: #f3e5f5; color: #7b1fa2; }
+        .badge-failed { background: #ffebee; color: #c62828; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .form-group textarea { min-height: 100px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        h1 { margin-bottom: 1rem; }
+        .actions { display: flex; gap: 0.5rem; }
+        .pagination { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+        .pagination a, .pagination span {
+            padding: 0.3rem 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .pagination .current { background: #1a237e; color: #fff; border-color: #1a237e; }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+        .filters input, .filters select { padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; }
+        .text-muted { color: #888; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard.index') }}" class="brand">📋 Citation Builder</a>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+            <a href="{{ url_for('business.list_businesses') }}">Businesses</a>
+            <a href="{{ url_for('submission.captcha_queue') }}">CAPTCHA Queue</a>
+            <a href="{{ url_for('directory.list_directories') }}">Directories</a>
+            <a href="{{ url_for('submission.list_submissions') }}">Submissions</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ business.business_name }} - Citation Builder{% endblock %}
+{% block content %}
+<h1>{{ business.business_name }}</h1>
+
+<div class="actions mb-2">
+    <a href="{{ url_for('business.edit_business', id=business.id) }}" class="btn btn-warning">Edit</a>
+    <a href="{{ url_for('submission.submit_page', id=business.id) }}" class="btn btn-success">Submit to Directories</a>
+    <form method="POST" action="{{ url_for('business.delete_business', id=business.id) }}" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this business?')">Delete</button>
+    </form>
+    <a href="{{ url_for('business.list_businesses') }}" class="btn">&larr; Back</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="value">{{ stats.total }}</div>
+        <div class="label">Total Submissions</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.completed }}</div>
+        <div class="label">Completed</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.failed }}</div>
+        <div class="label">Failed</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.pending }}</div>
+        <div class="label">Pending</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.in_progress }}</div>
+        <div class="label">In Progress</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ stats.captcha }}</div>
+        <div class="label">CAPTCHA</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Business Details</h2>
+    <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Name</td><td>{{ business.business_name }}</td></tr>
+        <tr><td>Phone</td><td>{{ business.phone or '-' }}</td></tr>
+        <tr><td>Address</td><td>{{ business.address or '-' }}</td></tr>
+        <tr><td>City</td><td>{{ business.city or '-' }}</td></tr>
+        <tr><td>Province</td><td>{{ business.province or '-' }}</td></tr>
+        <tr><td>Postal Code</td><td>{{ business.postal_code or '-' }}</td></tr>
+        <tr><td>Website</td><td>{% if business.website %}<a href="{{ business.website }}" target="_blank">{{ business.website }}</a>{% else %}-{% endif %}</td></tr>
+        <tr><td>Email</td><td>{{ business.email or '-' }}</td></tr>
+        <tr><td>Categories</td><td>{{ business.categories or '-' }}</td></tr>
+        <tr><td>Description</td><td>{{ business.description or '-' }}</td></tr>
+        <tr><td>Status</td><td><span class="badge badge-{{ business.status }}">{{ business.status }}</span></td></tr>
+        <tr><td>Created</td><td>{{ business.created_at.strftime('%Y-%m-%d %H:%M') if business.created_at else '-' }}</td></tr>
+        <tr><td>Updated</td><td>{{ business.updated_at.strftime('%Y-%m-%d %H:%M') if business.updated_at else '-' }}</td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Submission History</h2>
+    {% if submissions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Directory</th>
+                <th>Status</th>
+                <th>Guide</th>
+                <th>SS</th>
+                <th>Error</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in submissions %}
+            <tr>
+                <td>{{ s.directory_name }}</td>
+                <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+                <td>{% if s.guide_url %}<a href="{{ s.guide_url }}" target="_blank" class="btn btn-sm btn-outline">Open</a>{% else %}-{% endif %}</td>
+                <td>{% if s.screenshot_path %}<a href="{{ url_for('static', filename=s.screenshot_path) }}" target="_blank" class="btn btn-sm btn-outline">📷</a>{% else %}-{% endif %}</td>
+                <td>{{ s.error_message[:40] ~ '...' if s.error_message and s.error_message|length > 40 else s.error_message or '-' }}</td>
+                <td>{{ s.submitted_at.strftime('%Y-%m-%d %H:%M') if s.submitted_at else '-' }}</td>
+                <td>
+                    {% if s.status == 'failed' %}
+                    <form method="POST" action="{{ url_for('submission.retry_submission', id=s.id) }}" style="display:inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary btn-sm">Retry</button>
+                    </form>
+                    {% elif s.status == 'pending' or s.status == 'manual' %}
+                    <form method="POST" action="{{ url_for('submission.skip_submission', id=s.id) }}" style="display:inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-warning btn-sm">Skip</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No submissions yet. <a href="{{ url_for('submission.submit_page', id=business.id) }}">Start submitting</a> to directories.</p>
+    {% endif %}
+</div>
+{% endblock %}

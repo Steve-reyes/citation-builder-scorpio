@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Submissions - Citation Builder{% endblock %}
+{% block content %}
+<h1>Submissions</h1>
+
+<div class="filters">
+    <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label>Status</label>
+            <select name="status">
+                <option value="">All</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                <option value="skipped" {% if status_filter == 'skipped' %}selected{% endif %}>Skipped</option>
+            </select>
+        </div>
+        <div>
+            <label>Directory</label>
+            <input type="text" name="directory" value="{{ directory_filter }}" placeholder="Directory name...">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('submission.list_submissions') }}" class="btn btn-sm">Clear</a>
+    </form>
+</div>
+
+{% if submissions %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Directory</th>
+            <th>Status</th>
+            <th>Guide</th>
+            <th>SS</th>
+            <th>CAPTCHA</th>
+            <th>Error</th>
+            <th>Created</th>
+            <th>Submitted</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in submissions %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.directory_name }}</td>
+            <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+            <td>{% if s.guide_url %}<a href="{{ s.guide_url }}" target="_blank" class="btn btn-sm btn-outline">Open</a>{% else %}-{% endif %}</td>
+            <td>{% if s.screenshot_path %}<a href="{{ url_for('static', filename=s.screenshot_path) }}" target="_blank" class="btn btn-sm btn-outline">📷</a>{% else %}-{% endif %}</td>
+            <td>{% if s.captcha_detected %}⚠️ Yes{% else %}-{% endif %}</td>
+            <td>{{ s.error_message[:60] + '...' if s.error_message and s.error_message|length > 60 else s.error_message or '-' }}</td>
+            <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '-' }}</td>
+            <td>{{ s.submitted_at.strftime('%Y-%m-%d %H:%M') if s.submitted_at else '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('submission.list_submissions', page=pagination.prev_num, status=status_filter, directory=directory_filter) }}">&laquo; Prev</a>
+    {% endif %}
+    {% for p in pagination.iter_pages() %}
+        {% if p %}
+        <a href="{{ url_for('submission.list_submissions', page=p, status=status_filter, directory=directory_filter) }}" {% if p == pagination.page %}class="current"{% endif %}>{{ p }}</a>
+        {% else %}
+        <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <a href="{{ url_for('submission.list_submissions', page=pagination.next_num, status=status_filter, directory=directory_filter) }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <p class="text-muted">No submissions found.</p>
+</div>
+{% endif %}
+{% endblock %}

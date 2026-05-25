@@ -167,7 +167,7 @@ User visits /captcha-queue
 | `/api/stats` | GET | dashboard | — (JSON) | Dashboard statistics API |
 | `/businesses` | GET | business | `business/list.html` | List all businesses |
 | `/businesses/new` | GET, POST | business | `business/create.html` | Create a new business |
-| `/businesses/<id>` | GET | business | `business/view.html` | View business details + submissions |
+|| `/businesses/<id>` | GET | business | `business/view.html` | View business details + Submission History table (Directory, Link, Status, Guide, SS, Error, Submitted, Actions) |
 | `/businesses/<id>/edit` | GET, POST | business | `business/edit.html` | Edit a business |
 | `/businesses/<id>/delete` | POST | business | — (redirect) | Delete a business |
 | `/api/businesses` | GET | business | — (JSON) | List all businesses (API) |

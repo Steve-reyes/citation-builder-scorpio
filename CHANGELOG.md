@@ -2,6 +2,15 @@
 
 All notable changes to the Local SEO Citation Builder are documented in this file.
 
+## [1.4.0] — 2026-05-25
+
+### Added
+- **Link Column in Submission History** — New "Link" column added to the Submission History table on the business detail page (`business/view.html`). The column displays:
+  - `submission_url` as a clickable link with 🔗 icon (preferred)
+  - Falls back to `directory_url` if no `submission_url` is available
+  - URLs truncated to 35 characters with ellipsis for readability
+  - Full URL shown as a `title` tooltip on hover
+
 ## [1.3.0] — 2026-05-25
 
 ### Fixed

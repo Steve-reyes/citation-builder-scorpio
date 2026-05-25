@@ -16,6 +16,7 @@
 - **Three Difficulty Levels** — Easy (auto-submit), Medium (auto + CAPTCHA fallback), Hard (guide link for manual submission).
 - **Batch Processing** — Submit a business to all directories with one click; runs in background threads.
 - **Real-time Progress Tracking** — Live progress page with animated bar, stat cards, and auto-refreshing submission table during batch runs.
+- **CSV Export** — Download submission data as CSV from the batch progress page; includes directory name, status, CAPTCHA flag, error messages, and timestamps.
 - **Analytics Dashboard** — Donut/barchart dashboards with aggregate stats, daily submission trends (14 days), difficulty performance, and top/bottom directories ranking.
 - **CAPTCHA Queue** — Review and handle unsolved CAPTCHAs with screenshots and guide links.
 - **REST API** — JSON endpoints for dashboard stats, business CRUD, directory listing, and submission management.

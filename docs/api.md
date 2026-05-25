@@ -329,6 +329,47 @@ Reset a submission status to `pending` and re-run the submission engine for a si
 
 **Response:** HTTP 302 redirect back to the business view page.
 
+### Submissions Export
+
+#### Export Submissions as CSV
+
+```
+GET /api/submissions/<business_id>/export
+```
+
+Returns all submissions for a business as a downloadable CSV file.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `business_id` | integer (path) | Business ID |
+
+**Response 200 (text/csv):**
+
+```
+directory_name,status,captcha_detected,error_message,submitted_at
+Yellow Pages Canada,completed,No,,2026-05-25 08:15:00
+CanadaPlus,completed,No,,2026-05-25 08:15:05
+Yelp Canada,failed,Yes,Timeout on form submit,2026-05-25 08:16:30
+```
+
+**CSV Columns:**
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `directory_name` | string | Name of the directory |
+| `status` | string | Submission status (completed, failed, pending, in_progress, skipped) |
+| `captcha_detected` | string | "Yes" if CAPTCHA was detected, "No" otherwise |
+| `error_message` | string | Error description (empty if none) |
+| `submitted_at` | string | Submission timestamp in `YYYY-MM-DD HH:MM:SS` format (empty if not yet submitted) |
+
+**Response 404:** Business not found.
+
+The download button for this endpoint is available on the batch progress page (`/businesses/<id>/batch-progress`).
+
+---
+
 #### Skip a Submission
 
 ```

@@ -2,6 +2,16 @@
 
 All notable changes to the Local SEO Citation Builder are documented in this file.
 
+## [1.3.0] — 2026-05-25
+
+### Fixed
+- **CSRF Timeout** — `WTF_CSRF_TIME_LIMIT` set to 3600 seconds (1 hour) in `config.py` to prevent form expiry during long submission sessions
+- **Submit Button Disable** — Submit button now disables on click with "Submitting..." text to prevent duplicate submissions
+- **Nav Active State** — Current navigation link is now highlighted with an `active` CSS class in `base.html` for better UX
+
+### Added
+- **CSV Export** — New endpoint `GET /api/submissions/<business_id>/export` returns a downloadable CSV file with columns: `directory_name`, `status`, `captcha_detected`, `error_message`, `submitted_at`. Download button available on the batch progress page.
+
 ## [1.2.0] — 2026-05-25
 
 ### Added

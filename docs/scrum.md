@@ -42,7 +42,7 @@ Every change = git commit. Every release = docs updated.
 | ID | Story | Status | Notes |
 |----|-------|--------|-------|
 | T4 | Add submission progress tracking (live status during batch) | **done** | Implemented polling-based batch progress page with animated bar, stat cards, auto-refreshing table; redirect on batch start updated; committed |
-| T3 | Update docs + CHANGELOG for v1.0 release | **in_progress** | Doc-Scorpio updating |
+| T3 | Update docs + CHANGELOG for v1.0 release | **done** | Doc-Scorpio completed all docs |
 | T2 | Fix bugs found during real testing | **done** | Bugs from T1 fixed and committed |
 | T1 | Run real submission test on live app | **done** | Real testing completed |
 || T5 | QA pass — edge cases, error handling | todo | Waiting on docs
@@ -53,4 +53,14 @@ Every change = git commit. Every release = docs updated.
 
 | ID | Story | Status | Notes |
 |----|-------|--------|-------|
-| T6 | Build analytics dashboard route + template | **done** | `GET /analytics` with 7 queries, Chart.js donut/bar charts, tables; deployed to live |
+|| T6 | Build analytics dashboard route + template | **done** | `GET /analytics` with 7 queries, Chart.js donut/bar charts, tables; deployed to live |
+
+## Sprint 3 Status (May 25)
+
+**Goal:** Clean up remaining bugs, add CSV export, ship stable
+
+| ID | Story | Status | Notes |
+|----|-------|--------|-------|
+|| T6 | Fix 3 minor bugs — CSRF timeout, button disable, nav active state | **done** | All 3 bugs fixed in `config.py`, `submit.html`, `base.html` |
+|| T7 | Export submissions as CSV | **done** | `GET /api/submissions/<business_id>/export` returns CSV; download button on batch progress page |
+|| T8 | Docs update + retro | **done** | CHANGELOG v1.3.0, README, API docs, scrum status, retro all updated |

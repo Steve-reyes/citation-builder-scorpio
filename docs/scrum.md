@@ -45,4 +45,12 @@ Every change = git commit. Every release = docs updated.
 | T3 | Update docs + CHANGELOG for v1.0 release | **in_progress** | Doc-Scorpio updating |
 | T2 | Fix bugs found during real testing | **done** | Bugs from T1 fixed and committed |
 | T1 | Run real submission test on live app | **done** | Real testing completed |
-| T5 | QA pass — edge cases, error handling | todo | Waiting on docs
+|| T5 | QA pass — edge cases, error handling | todo | Waiting on docs
+
+## Sprint 2 Status (May 25)
+
+**Goal:** Build analytics dashboard for data-driven insights
+
+| ID | Story | Status | Notes |
+|----|-------|--------|-------|
+| T6 | Build analytics dashboard route + template | **done** | `GET /analytics` with 7 queries, Chart.js donut/bar charts, tables; deployed to live |

@@ -26,6 +26,24 @@ Currently, the API does not require authentication. CSRF protection is enabled f
 
 ### Dashboard
 
+#### Analytics Dashboard Page
+
+```
+GET /analytics
+```
+
+Renders an HTML analytics dashboard page with Chart.js visualizations. This is a form-based route, not a JSON API endpoint.
+
+**Response:** HTML page containing:
+- Aggregate stat cards (total businesses, total submissions, success rate, CAPTCHA count)
+- Status breakdown donut chart (completed, failed, pending, in_progress, skipped)
+- Daily trend bar chart (submissions per day, last 14 days)
+- Difficulty-level performance table (easy/medium/hard with counts and success rates)
+- Top 10 directories by submission count
+- Bottom 10 directories by submission count
+
+---
+
 #### Get Dashboard Stats
 
 ```

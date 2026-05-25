@@ -2,6 +2,18 @@
 
 All notable changes to the Local SEO Citation Builder are documented in this file.
 
+## [1.2.0] — 2026-05-25
+
+### Added
+- **Analytics Dashboard** — New `/analytics` page with:
+  - Aggregate stats cards (total businesses, submissions, success rate, CAPTCHA count)
+  - Status breakdown donut chart (Chart.js) showing completed/failed/pending/in-progress/skipped proportions
+  - Daily trend bar chart for submissions over the last 14 days
+  - Difficulty-level performance table with counts and success rates
+  - Top 10 and bottom 10 directories ranked by submission count
+- **Analytics Nav Link** — "Analytics" entry added to the sidebar navigation in `base.html`
+- **Dashboard Route** — `GET /analytics` in `app/routes/dashboard.py` with 7 SQLAlchemy queries
+
 ## [1.1.0] — 2026-05-25
 
 ### Added

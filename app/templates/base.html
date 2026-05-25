@@ -24,6 +24,7 @@
         .navbar .brand { font-size: 1.3rem; font-weight: 700; }
         .navbar .nav-links { display: flex; gap: 1.5rem; }
         .navbar .nav-links a:hover { text-decoration: underline; }
+        .navbar .nav-links a.active { text-decoration: underline; font-weight: 700; }
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         .flash-messages { margin-bottom: 1rem; }
         .flash {
@@ -133,12 +134,12 @@
     <nav class="navbar">
         <a href="{{ url_for('dashboard.index') }}" class="brand">📋 Citation Builder</a>
         <div class="nav-links">
-            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
-            <a href="{{ url_for('business.list_businesses') }}">Businesses</a>
-            <a href="{{ url_for('submission.captcha_queue') }}">CAPTCHA Queue</a>
-            <a href="{{ url_for('directory.list_directories') }}">Directories</a>
-            <a href="{{ url_for('submission.list_submissions') }}">Submissions</a>
-            <a href="{{ url_for('dashboard.analytics') }}">Analytics</a>
+            <a href="{{ url_for('dashboard.index') }}" {% if request.endpoint and 'dashboard' in request.endpoint %}class="active"{% endif %}>Dashboard</a>
+            <a href="{{ url_for('business.list_businesses') }}" {% if request.endpoint and 'business' in request.endpoint %}class="active"{% endif %}>Businesses</a>
+            <a href="{{ url_for('submission.captcha_queue') }}" {% if request.endpoint and 'captcha' in request.endpoint %}class="active"{% endif %}>CAPTCHA Queue</a>
+            <a href="{{ url_for('directory.list_directories') }}" {% if request.endpoint and 'directory' in request.endpoint %}class="active"{% endif %}>Directories</a>
+            <a href="{{ url_for('submission.list_submissions') }}" {% if request.endpoint and 'submission' in request.endpoint %}class="active"{% endif %}>Submissions</a>
+            <a href="{{ url_for('dashboard.analytics') }}" {% if request.endpoint and 'analytics' in request.endpoint %}class="active"{% endif %}>Analytics</a>
         </div>
     </nav>
 

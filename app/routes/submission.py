@@ -1,3 +1,5 @@
+import csv
+import io
 import json
 import threading
 from datetime import datetime
@@ -258,4 +260,38 @@ def captcha_queue():
         'submission/captcha_queue.html',
         submissions=submissions,
         pagination=pagination,
+    )
+
+
+@submission_bp.route('/api/submissions/<int:business_id>/export')
+def export_csv(business_id):
+    """Export all submissions for a business as CSV."""
+    business = Business.query.get_or_404(business_id)
+    submissions = DirectorySubmission.query.filter_by(business_id=business_id).order_by(
+        DirectorySubmission.created_at.asc()
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['directory_name', 'status', 'captcha_detected', 'error_message', 'submitted_at'])
+
+    for s in submissions:
+        writer.writerow([
+            s.directory_name,
+            s.status,
+            'Yes' if s.captcha_detected else 'No',
+            s.error_message or '',
+            s.submitted_at.strftime('%Y-%m-%d %H:%M:%S') if s.submitted_at else '',
+        ])
+
+    csv_bytes = output.getvalue().encode('utf-8')
+    output.close()
+
+    return (
+        csv_bytes,
+        200,
+        {
+            'Content-Type': 'text/csv',
+            'Content-Disposition': f'attachment; filename=submissions_{business_id}.csv',
+        }
     )

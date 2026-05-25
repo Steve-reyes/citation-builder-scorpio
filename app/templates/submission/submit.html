@@ -21,7 +21,7 @@
     <h2>Select Directories</h2>
     <p class="text-muted mb-2">Choose directories to submit to. A submission record will be created for each selected directory.</p>
 
-    <form method="POST" action="{{ url_for('submission.start_submission', id=business.id) }}">
+    <form method="POST" action="{{ url_for('submission.start_submission', id=business.id) }}" onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').textContent = 'Submitting...'">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div style="margin-bottom: 1rem;">
             <button type="button" onclick="toggleAll(true)" class="btn btn-sm">Select All</button>

@@ -13,4 +13,5 @@ class Config:
     PLAYWRIGHT_HEADLESS = os.environ.get('PLAYWRIGHT_HEADLESS', 'true').lower() == 'true'
     UPLOAD_FOLDER = os.path.join(os.path.dirname(basedir), 'uploads')
     WTF_CSRF_ENABLED = True
+    WTF_CSRF_TIME_LIMIT = 3600
     DIRECTORIES_DATA_PATH = os.path.join(basedir, 'data', 'ca_directories.json')

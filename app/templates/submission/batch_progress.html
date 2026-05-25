@@ -79,6 +79,7 @@
         </p>
       </div>
       <a href="{{ url_for('business.view_business', id=business.id) }}" class="btn btn-success">View Business &rarr;</a>
+      <a href="{{ url_for('submission.export_csv', business_id=business.id) }}" class="btn btn-sm btn-primary">Download CSV</a>
     </div>
   </div>
 

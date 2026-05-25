@@ -132,7 +132,35 @@ def start_submission(id):
         f'Batch submission started for {created_count} directories on "{business.business_name}".',
         'success',
     )
-    return redirect(url_for('business.view_business', id=business.id))
+    return redirect(url_for('submission.batch_progress', id=business.id))
+
+
+@submission_bp.route('/businesses/<int:id>/batch-progress')
+def batch_progress(id):
+    business = Business.query.get_or_404(id)
+    submissions = DirectorySubmission.query.filter_by(business_id=id).order_by(
+        DirectorySubmission.created_at.asc()
+    ).all()
+
+    total = len(submissions)
+    done = sum(1 for s in submissions if s.status in ('completed', 'failed', 'skipped'))
+    stats = {
+        'total': total,
+        'completed': sum(1 for s in submissions if s.status == 'completed'),
+        'failed': sum(1 for s in submissions if s.status == 'failed'),
+        'in_progress': sum(1 for s in submissions if s.status == 'in_progress'),
+        'pending': sum(1 for s in submissions if s.status == 'pending'),
+        'skipped': sum(1 for s in submissions if s.status == 'skipped'),
+        'manual': sum(1 for s in submissions if s.status == 'manual'),
+        'batch_complete': total > 0 and done == total,
+    }
+
+    return render_template(
+        'submission/batch_progress.html',
+        business=business,
+        submissions=submissions,
+        stats=stats,
+    )
 
 
 @submission_bp.route('/api/submissions/<int:business_id>')
@@ -151,6 +179,10 @@ def api_submission_status(business_id):
         'skipped': sum(1 for s in submissions if s.status == 'skipped'),
         'captcha': sum(1 for s in submissions if s.captcha_detected),
         'manual': sum(1 for s in submissions if s.status == 'manual'),
+        'batch_complete': len(submissions) > 0 and all(
+            s.status in ('completed', 'failed', 'skipped')
+            for s in submissions
+        ),
     }
 
     return jsonify({

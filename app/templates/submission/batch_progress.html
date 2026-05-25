@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}Batch Progress - {{ business.business_name }} - Citation Builder{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: #e0e0e0;">Batch Submission Progress</h1>
+      <p class="text-muted" style="margin-top: 0.25rem;">{{ business.business_name }}</p>
+    </div>
+    <div id="batch-status-badge">
+      {% if stats.batch_complete %}
+      <span class="badge badge-completed" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">&#10003; All Done</span>
+      {% else %}
+      <span class="badge badge-in_progress" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">&#9654; Running&hellip;</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-muted" style="font-size: 0.9rem; font-weight: 600;">Overall Progress</span>
+      <span class="text-muted" id="progress-count">
+        {% set done = stats.completed + stats.failed + stats.skipped %}
+        {{ done }} / {{ stats.total }} directories
+      </span>
+    </div>
+    <div style="width: 100%; background: #e0e0e0; border-radius: 8px; height: 20px; overflow: hidden;">
+      {% set pct = ((done / stats.total) * 100) | round(1) if stats.total > 0 else 0 %}
+      <div id="progress-fill"
+           style="width: {{ pct }}%; height: 100%; border-radius: 8px; background: linear-gradient(90deg, #1a237e, #2e7d32); transition: width 0.5s ease;">
+      </div>
+    </div>
+    <div class="text-right mt-1">
+      <span class="text-muted" style="font-size: 0.8rem;" id="progress-pct">{{ pct }}%</span>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid" style="grid-template-columns: repeat(6, 1fr);">
+    <div class="stat-card">
+      <div class="value" id="stat-total">{{ stats.total }}</div>
+      <div class="label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: #2e7d32;" id="stat-completed">{{ stats.completed }}</div>
+      <div class="label">Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: #1565c0;" id="stat-progress">{{ stats.in_progress }}</div>
+      <div class="label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: #e65100;" id="stat-pending">{{ stats.pending }}</div>
+      <div class="label">Pending</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: #c62828;" id="stat-failed">{{ stats.failed }}</div>
+      <div class="label">Failed</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: #7b1fa2;" id="stat-manual">{{ stats.manual }}</div>
+      <div class="label">Manual</div>
+    </div>
+  </div>
+
+  <!-- All Done Message -->
+  <div id="done-message" class="card" style="{% if not stats.batch_complete %}display: none;{% endif %} background: #e8f5e9; border: 1px solid #a5d6a7;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 40px; height: 40px; border-radius: 50%; background: #a5d6a7; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">&#10003;</div>
+      <div style="flex: 1;">
+        <h3 style="color: #2e7d32; margin: 0 0 0.25rem 0;">All done!</h3>
+        <p style="color: #388e3c; margin: 0; font-size: 0.9rem;">
+          Batch completed.
+          <strong>{{ stats.completed }}</strong> succeeded,
+          <strong style="color: #c62828;">{{ stats.failed }}</strong> failed,
+          <strong style="color: #7b1fa2;">{{ stats.manual }}</strong> require manual action.
+        </p>
+      </div>
+      <a href="{{ url_for('business.view_business', id=business.id) }}" class="btn btn-success">View Business &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Submissions Table -->
+  <div class="card">
+    <h2>Directory Submissions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Directory</th>
+          <th>Status</th>
+          <th>Error</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody id="submissions-tbody">
+        {% for s in submissions %}
+        <tr id="sub-row-{{ s.id }}">
+          <td style="color: #888; font-size: 0.85rem;">{{ loop.index }}</td>
+          <td>{{ s.directory_name }}</td>
+          <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+          <td style="font-size: 0.85rem; {% if s.error_message %}color: #c62828;{% else %}color: #888;{% endif %}">
+            {{ s.error_message[:60] ~ '...' if s.error_message and s.error_message|length > 60 else s.error_message or '-' }}
+          </td>
+          <td style="font-size: 0.85rem; color: #888;">{{ s.submitted_at.strftime('%H:%M:%S') if s.submitted_at else '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Return link -->
+  <div class="mt-2" style="text-align: center;">
+    <a href="{{ url_for('business.view_business', id=business.id) }}" style="color: #666; text-decoration: none; font-size: 0.9rem;">&larr; Back to Business</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var businessId = {{ business.id }};
+  var pollInterval = 3000;
+  var pollTimer = null;
+  var batchComplete = {{ 'true' if stats.batch_complete else 'false' }};
+
+  function fetchProgress() {
+    fetch('/api/submissions/' + businessId)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        updateUI(data);
+      })
+      .catch(function(err) {
+        console.error('Poll error:', err);
+      });
+  }
+
+  function updateUI(data) {
+    var stats = data.stats;
+    var submissions = data.submissions;
+    var done = stats.completed + stats.failed + stats.skipped;
+    var total = stats.total;
+    var pct = total > 0 ? (done / total * 100) : 0;
+
+    // Progress bar
+    var fill = document.getElementById('progress-fill');
+    if (fill) fill.style.width = pct + '%';
+
+    // Progress count
+    var countEl = document.getElementById('progress-count');
+    if (countEl) countEl.textContent = done + ' / ' + total + ' directories';
+
+    // Percent label
+    var pctEl = document.getElementById('progress-pct');
+    if (pctEl) pctEl.textContent = pct.toFixed(1) + '%';
+
+    // Stats cards
+    setText('stat-total', total);
+    setText('stat-completed', stats.completed);
+    setText('stat-progress', stats.in_progress);
+    setText('stat-pending', stats.pending);
+    setText('stat-failed', stats.failed);
+    setText('stat-manual', stats.manual);
+
+    // Batch status badge
+    var badgeEl = document.getElementById('batch-status-badge');
+    if (badgeEl) {
+      if (stats.batch_complete) {
+        badgeEl.innerHTML = '<span class="badge badge-completed" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">&#10003; All Done</span>';
+      } else {
+        badgeEl.innerHTML = '<span class="badge badge-in_progress" style="font-size: 0.85rem; padding: 0.35rem 0.8rem;">&#9654; Running&hellip;</span>';
+      }
+    }
+
+    // Done message
+    var doneMsg = document.getElementById('done-message');
+    if (doneMsg) {
+      if (stats.batch_complete) {
+        doneMsg.style.display = 'flex';
+        var p = doneMsg.querySelector('p');
+        if (p) {
+          p.innerHTML = 'Batch completed. <strong>' + stats.completed + '</strong> succeeded, <strong style="color: #c62828;">' + stats.failed + '</strong> failed, <strong style="color: #7b1fa2;">' + stats.manual + '</strong> require manual action.';
+        }
+      } else {
+        doneMsg.style.display = 'none';
+      }
+    }
+
+    // Update submission rows
+    if (submissions) {
+      submissions.forEach(function(s) {
+        var row = document.getElementById('sub-row-' + s.id);
+        if (!row) return;
+
+        var cells = row.querySelectorAll('td');
+        if (cells.length < 3) return;
+
+        // Status cell (index 2)
+        var badgeClass = getStatusBadgeClass(s.status);
+        cells[2].innerHTML = '<span class="badge ' + badgeClass + '">' + s.status + '</span>';
+
+        // Error cell (index 3)
+        if (s.error_message) {
+          cells[3].textContent = s.error_message.length > 60 ? s.error_message.substring(0, 60) + '...' : s.error_message;
+          cells[3].style.color = '#c62828';
+        } else {
+          cells[3].textContent = '-';
+          cells[3].style.color = '#888';
+        }
+
+        // Submitted time cell (index 4)
+        if (s.submitted_at) {
+          var d = new Date(s.submitted_at);
+          cells[4].textContent = d.toTimeString().substring(0, 8);
+        } else {
+          cells[4].textContent = '-';
+        }
+      });
+    }
+
+    // Stop polling if batch is complete
+    if (stats.batch_complete && !batchComplete) {
+      batchComplete = true;
+      if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+      }
+    }
+  }
+
+  function getStatusBadgeClass(status) {
+    return 'badge-' + status;
+  }
+
+  function setText(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  // Start polling if batch is not yet complete
+  if (!batchComplete) {
+    pollTimer = setInterval(fetchProgress, pollInterval);
+  }
+})();
+</script>
+{% endblock %}

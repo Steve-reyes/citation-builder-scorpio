@@ -175,13 +175,15 @@ User visits /captcha-queue
 | `/directories` | GET | directory | `directory/list.html` | Browse directories with filters |
 | `/api/directories` | GET | directory | — (JSON) | List directories (API) |
 | `/api/directories/by_province/<p>` | GET | directory | — (JSON) | Directories by province (API) |
-| `/submissions` | GET | submission | `submission/list.html` | List all submissions |
+| `/submissions` | GET | submission | `submission/list.html` | List all submissions (columns: ID, Directory, Link, Status, Guide, SS, CAPTCHA, Error, Created, Submitted) |
 | `/businesses/<id>/submit` | GET | submission | `submission/submit.html` | Submission page for a business |
 | `/businesses/<id>/start` | POST | submission | — (redirect) | Start batch submission |
+| `/businesses/<id>/batch-progress` | GET | submission | `submission/batch_progress.html` | Real-time batch progress with polling (columns: #, Directory, Link, Status, Error, Submitted) |
 | `/submissions/<id>/retry` | POST | submission | — (redirect) | Retry a single submission |
 | `/submissions/<id>/skip` | POST | submission | — (redirect) | Skip a submission |
 | `/api/submissions/<business_id>` | GET | submission | — (JSON) | Submission status API |
-| `/captcha-queue` | GET | submission | `submission/captcha_queue.html` | CAPTCHA manual review queue |
+| `/captcha-queue` | GET | submission | `submission/captcha_queue.html` | CAPTCHA manual review queue (columns: ID, Directory, Link, Status, Guide, Screenshot, Business, Created) |
+| `/api/submissions/export/<business_id>` | GET | submission | — (CSV) | Export submissions as CSV |
 
 ## Component Responsibilities
 

@@ -91,6 +91,7 @@
         <tr>
           <th>#</th>
           <th>Directory</th>
+          <th>Link</th>
           <th>Status</th>
           <th>Error</th>
           <th>Submitted</th>
@@ -101,6 +102,13 @@
         <tr id="sub-row-{{ s.id }}">
           <td style="color: #888; font-size: 0.85rem;">{{ loop.index }}</td>
           <td>{{ s.directory_name }}</td>
+          <td>
+            {%- if s.submission_url %}
+            <a href="{{ s.submission_url }}" target="_blank" rel="noopener" title="{{ s.submission_url }}" style="font-size:0.8rem;">🔗 {{ s.submission_url[:30] }}{% if s.submission_url|length > 30 %}…{% endif %}</a>
+            {%- elif s.directory_url %}
+            <a href="{{ s.directory_url }}" target="_blank" rel="noopener" title="{{ s.directory_url }}" style="font-size:0.8rem;">{{ s.directory_url[:30] }}{% if s.directory_url|length > 30 %}…{% endif %}</a>
+            {%- else %}-{% endif %}
+          </td>
           <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
           <td style="font-size: 0.85rem; {% if s.error_message %}color: #c62828;{% else %}color: #888;{% endif %}">
             {{ s.error_message[:60] ~ '...' if s.error_message and s.error_message|length > 60 else s.error_message or '-' }}
@@ -196,27 +204,36 @@
         if (!row) return;
 
         var cells = row.querySelectorAll('td');
-        if (cells.length < 3) return;
+        if (cells.length < 4) return;
 
-        // Status cell (index 2)
-        var badgeClass = getStatusBadgeClass(s.status);
-        cells[2].innerHTML = '<span class="badge ' + badgeClass + '">' + s.status + '</span>';
-
-        // Error cell (index 3)
-        if (s.error_message) {
-          cells[3].textContent = s.error_message.length > 60 ? s.error_message.substring(0, 60) + '...' : s.error_message;
-          cells[3].style.color = '#c62828';
+        // Link cell (index 2)
+        var url = s.submission_url || s.directory_url || null;
+        if (url) {
+          var icon = s.submission_url ? '🔗 ' : '';
+          cells[2].innerHTML = '<a href="' + url + '" target="_blank" rel="noopener" title="' + url + '" style="font-size:0.8rem;">' + icon + (url.length > 30 ? url.substring(0, 30) + '…' : url) + '</a>';
         } else {
-          cells[3].textContent = '-';
-          cells[3].style.color = '#888';
+          cells[2].textContent = '-';
         }
 
-        // Submitted time cell (index 4)
-        if (s.submitted_at) {
-          var d = new Date(s.submitted_at);
-          cells[4].textContent = d.toTimeString().substring(0, 8);
+        // Status cell (index 3)
+        var badgeClass = getStatusBadgeClass(s.status);
+        cells[3].innerHTML = '<span class="badge ' + badgeClass + '">' + s.status + '</span>';
+
+        // Error cell (index 4)
+        if (s.error_message) {
+          cells[4].textContent = s.error_message.length > 60 ? s.error_message.substring(0, 60) + '...' : s.error_message;
+          cells[4].style.color = '#c62828';
         } else {
           cells[4].textContent = '-';
+          cells[4].style.color = '#888';
+        }
+
+        // Submitted time cell (index 5)
+        if (s.submitted_at) {
+          var d = new Date(s.submitted_at);
+          cells[5].textContent = d.toTimeString().substring(0, 8);
+        } else {
+          cells[5].textContent = '-';
         }
       });
     }

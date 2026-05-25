@@ -10,6 +10,7 @@
         <tr>
             <th>ID</th>
             <th>Directory</th>
+            <th>Link</th>
             <th>Status</th>
             <th>Guide</th>
             <th>Screenshot</th>
@@ -22,6 +23,13 @@
         <tr>
             <td>{{ s.id }}</td>
             <td>{{ s.directory_name }}</td>
+            <td>
+                {%- if s.submission_url %}
+                <a href="{{ s.submission_url }}" target="_blank" rel="noopener" title="{{ s.submission_url }}">🔗 {{ s.submission_url[:35] }}{% if s.submission_url|length > 35 %}…{% endif %}</a>
+                {%- elif s.directory_url %}
+                <a href="{{ s.directory_url }}" target="_blank" rel="noopener" title="{{ s.directory_url }}">{{ s.directory_url[:35] }}{% if s.directory_url|length > 35 %}…{% endif %}</a>
+                {%- else %}-{% endif %}
+            </td>
             <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
             <td>{% if s.guide_url %}<a href="{{ s.guide_url }}" target="_blank" class="btn btn-sm btn-outline">Open</a>{% else %}-{% endif %}</td>
             <td>{% if s.screenshot_path %}<a href="{{ url_for('static', filename=s.screenshot_path) }}" target="_blank" class="btn btn-sm btn-outline">View</a>{% else %}-{% endif %}</td>

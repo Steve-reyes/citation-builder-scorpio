@@ -451,6 +451,7 @@ class SubmissionEngine:
                     'Chrome/125.0.0.0 Safari/537.36'
                 ),
                 viewport={'width': 1920, 'height': 1080},
+                ignore_https_errors=True,
             )
             page = await context.new_page()
 

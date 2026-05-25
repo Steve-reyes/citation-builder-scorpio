@@ -157,6 +157,7 @@ def __repr__(self):
 | `directory_name` | `String(255)` | NOT NULL | — | Directory display name |
 | `directory_url` | `String(500)` | Nullable | `None` | Directory homepage URL |
 | `submission_url` | `String(500)` | Nullable | `None` | URL for submitting a listing |
+| `listing_url` | `String(1024)` | Nullable | `None` | Actual listing page URL captured after successful form submission (displayed first in link column) |
 | `guide_url` | `String(1024)` | Nullable | `None` | Pre-filled guide link for manual submission |
 | `screenshot_path` | `String(500)` | Nullable | `None` | Path to CAPTCHA screenshot image |
 | `status` | `String(20)` | Default: `'pending'` | `'pending'` | Submission status |
@@ -177,6 +178,7 @@ class DirectorySubmission(db.Model):
     directory_name = db.Column(db.String(255), nullable=False)
     directory_url = db.Column(db.String(500))
     submission_url = db.Column(db.String(500))
+    listing_url = db.Column(db.String(1024), nullable=True)
     guide_url = db.Column(db.String(1024))
     screenshot_path = db.Column(db.String(500), nullable=True)
     status = db.Column(
@@ -210,6 +212,7 @@ def to_dict(self):
         'directory_name': self.directory_name,
         'directory_url': self.directory_url,
         'submission_url': self.submission_url,
+        'listing_url': self.listing_url,
         'guide_url': self.guide_url,
         'screenshot_path': self.screenshot_path,
         'status': self.status,

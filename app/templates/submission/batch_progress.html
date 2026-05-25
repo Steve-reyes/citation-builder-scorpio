@@ -103,7 +103,9 @@
           <td style="color: #888; font-size: 0.85rem;">{{ loop.index }}</td>
           <td>{{ s.directory_name }}</td>
           <td>
-            {%- if s.submission_url %}
+            {%- if s.listing_url %}
+            <a href="{{ s.listing_url }}" target="_blank" rel="noopener" title="{{ s.listing_url }}" style="font-size:0.8rem;">📍 {{ s.listing_url[:30] }}{% if s.listing_url|length > 30 %}…{% endif %}</a>
+            {%- elif s.submission_url %}
             <a href="{{ s.submission_url }}" target="_blank" rel="noopener" title="{{ s.submission_url }}" style="font-size:0.8rem;">🔗 {{ s.submission_url[:30] }}{% if s.submission_url|length > 30 %}…{% endif %}</a>
             {%- elif s.directory_url %}
             <a href="{{ s.directory_url }}" target="_blank" rel="noopener" title="{{ s.directory_url }}" style="font-size:0.8rem;">{{ s.directory_url[:30] }}{% if s.directory_url|length > 30 %}…{% endif %}</a>
@@ -207,9 +209,9 @@
         if (cells.length < 4) return;
 
         // Link cell (index 2)
-        var url = s.submission_url || s.directory_url || null;
+        var url = s.listing_url || s.submission_url || s.directory_url || null;
         if (url) {
-          var icon = s.submission_url ? '🔗 ' : '';
+          var icon = s.listing_url ? '📍 ' : (s.submission_url ? '🔗 ' : '');
           cells[2].innerHTML = '<a href="' + url + '" target="_blank" rel="noopener" title="' + url + '" style="font-size:0.8rem;">' + icon + (url.length > 30 ? url.substring(0, 30) + '…' : url) + '</a>';
         } else {
           cells[2].textContent = '-';

@@ -10,6 +10,7 @@ class DirectorySubmission(db.Model):
     directory_name = db.Column(db.String(255), nullable=False)
     directory_url = db.Column(db.String(500))
     submission_url = db.Column(db.String(500))
+    listing_url = db.Column(db.String(1024), nullable=True)
     guide_url = db.Column(db.String(1024))
     screenshot_path = db.Column(db.String(500), nullable=True)
     status = db.Column(
@@ -29,6 +30,7 @@ class DirectorySubmission(db.Model):
             'directory_name': self.directory_name,
             'directory_url': self.directory_url,
             'submission_url': self.submission_url,
+            'listing_url': self.listing_url,
             'guide_url': self.guide_url,
             'screenshot_path': self.screenshot_path,
             'status': self.status,

@@ -577,10 +577,18 @@ class SubmissionEngine:
 
                     success_text_detected = any(indicator in page_text for indicator in success_indicators)
 
+                    # Capture the final URL — could be the listing page, a confirmation page, or same page
+                    final_url = ''
+                    try:
+                        final_url = page.url
+                    except Exception:
+                        pass
+
                     await context.close()
                     return {
                         'success': True if success_text_detected else True,
                         'captcha_detected': False,
+                        'listing_url': final_url if final_url != submission_url else '',
                         'error_message': None if success_text_detected else (
                             'Form submitted but no success confirmation detected.'
                         ),
@@ -647,6 +655,7 @@ class SubmissionEngine:
         # Update submission record
         submission.captcha_detected = result.get('captcha_detected', False)
         submission.guide_url = result.get('guide_url')
+        submission.listing_url = result.get('listing_url', '')
         submission.screenshot_path = result.get('screenshot_path', '')
         submission.submitted_at = datetime.utcnow()
 

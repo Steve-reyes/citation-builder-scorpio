@@ -10,11 +10,18 @@ All notable changes to the Local SEO Citation Builder are documented in this fil
   - **Submissions List** (`submission/list.html`) — Link column added after Directory, shifting Status, Guide, SS, CAPTCHA, Error, and Created/Submitted columns right by one
   - **CAPTCHA Queue** (`submission/captcha_queue.html`) — Link column added after Directory, shifting Status, Guide, Screenshot, Business, and Created columns right by one
   - **Batch Progress** (`submission/batch_progress.html`) — Link column added after Directory in both the static table and the JS-driven dynamic refresh; cell indices shifted by +1 for status (3), error (4), submitted (5)
-- Each link displays:
-  - `submission_url` as a clickable link with 🔗 icon (preferred)
-  - Falls back to `directory_url` if no `submission_url` is available
-  - URLs truncated to 30-35 characters with ellipsis for readability
-  - Full URL shown as a `title` tooltip on hover
+- **`listing_url` Field** — New database column added to `DirectorySubmission` model (`app/models/submission.py`) that captures the actual listing page URL after successful form submission
+- **Post-Submission URL Capture** — Submission engine (`app/services/submission_engine.py`) now captures `page.url` after form submission and returns it as `listing_url` in the result dictionary; only stored when the URL differs from the submission form URL
+- **`listing_url` Saved to Database** — `submit_business_to_directory()` persists the captured `listing_url` to the `DirectorySubmission` record on every submission attempt
+
+### Changed
+- **Priority-Based Link Display** — All four template tables now use a three-tier link priority system:
+  - **📍 `listing_url`** — Shown first with 📍 icon (highest priority — actual live listing page)
+  - **🔗 `submission_url`** — Fallback shown with 🔗 icon if no `listing_url` exists
+  - **`directory_url`** — Last resort fallback, no icon (directory homepage)
+  - URLs truncated to 30-35 characters with ellipsis; full URL shown as `title` tooltip on hover
+- **Batch Progress JS** — Dynamic row updates in `batch_progress.html` updated to use the same priority logic: `s.listing_url || s.submission_url || s.directory_url`
+- **Database Migration** — `ALTER TABLE directory_submissions ADD COLUMN listing_url VARCHAR(1024)` run on existing database to add the new column
 
 ## [1.3.0] — 2026-05-25
 

@@ -2,6 +2,22 @@
 
 All notable changes to the Local SEO Citation Builder are documented in this file.
 
+## [1.1.0] — 2026-05-25
+
+### Added
+- **Real-time Batch Submission Progress Tracking** — New dedicated progress page at `/businesses/<id>/batch-progress` with:
+  - Animated progress bar showing overall completion percentage
+  - Live stat cards (Total, Completed, In Progress, Pending, Failed, Manual)
+  - Auto-polling submissions table that updates in real-time (3-second interval)
+  - Color-coded status badges and completion summary
+  - Auto-stops polling when batch completes
+- **`batch_complete` API Field** — Added to `GET /api/submissions/<business_id>` response; boolean indicating whether all submissions for a business have reached a terminal status (completed/failed/skipped)
+- **Redirect on Batch Start** — After starting a batch, users are now redirected to the new progress page instead of back to the business view
+
+### Changed
+- Route `POST /businesses/<id>/start` now redirects to `/businesses/<id>/batch-progress` instead of the business detail page
+- `app/static/js/app.js` — Added polling logic for the batch progress page
+
 ## [1.0.0] — 2026-05-25
 
 ### Added

@@ -34,3 +34,15 @@ Managed by **steves-devs** team. See `~/.hermes/skills/devops/steves-devs/SKILL.
 6. **Retro** — write `docs/retro/sprint-<N>.md`
 
 Every change = git commit. Every release = docs updated.
+
+## Sprint 1 Status (May 24–31)
+
+**Goal:** Verify the submission engine works end-to-end, fix bugs from real testing, ship stable v1.0
+
+| ID | Story | Status | Notes |
+|----|-------|--------|-------|
+| T4 | Add submission progress tracking (live status during batch) | **done** | Implemented polling-based batch progress page with animated bar, stat cards, auto-refreshing table; redirect on batch start updated; committed |
+| T3 | Update docs + CHANGELOG for v1.0 release | **in_progress** | Doc-Scorpio updating |
+| T2 | Fix bugs found during real testing | **done** | Bugs from T1 fixed and committed |
+| T1 | Run real submission test on live app | **done** | Real testing completed |
+| T5 | QA pass — edge cases, error handling | todo | Waiting on docs

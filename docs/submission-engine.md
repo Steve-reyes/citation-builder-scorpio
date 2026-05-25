@@ -360,3 +360,58 @@ else:
     submission.status = 'failed'
     submission.error_message = result.get('error_message')
 ```
+
+## Batch Progress Tracking
+
+When batch submission is initiated, the user is redirected to a real-time progress page at `/businesses/<id>/batch-progress` that polls the API every 3 seconds for live updates.
+
+### Flow
+
+```
+POST /businesses/<id>/start   →   batch_progress() route renders template
+                                         ↓
+                              Progress page polls GET /api/submissions/<id>
+                                         ↓
+                              UI updates: progress bar, stat cards, table rows
+                                         ↓
+                              When batch_complete=true → polling stops
+                                         ↓
+                              "All done!" message with summary + link back
+```
+
+### Page Components (batch_progress.html)
+
+| Component | Description |
+|-----------|-------------|
+| **Status Badge** | Shows "Running…" or "✓ All Done" based on `stats.batch_complete` |
+| **Progress Bar** | Animated gradient bar: `(completed + failed + skipped) / total × 100%` |
+| **Stat Cards** | Six live cards: Total, Completed (green), In Progress (blue), Pending (orange), Failed (red), Manual (purple) |
+| **Submission Table** | Lists all directories with status badges, error messages, and submission timestamps; cells update in-place on each poll |
+| **Done Message** | Green summary card shown on completion with success/fail/manual counts and a link back to the business view |
+
+### `batch_complete` Heuristic
+
+The `batch_complete` field is computed both in the template route and the API endpoint:
+
+```python
+# In batch_progress() route (template rendering):
+'batch_complete': total > 0 and done == total
+
+# In api_submission_status() (JSON API):
+'batch_complete': len(submissions) > 0 and all(
+    s.status in ('completed', 'failed', 'skipped')
+    for s in submissions
+)
+```
+
+A submission is considered "terminal" if its status is `completed`, `failed`, or `skipped`. The in_progress and pending statuses mean the batch is still running.
+
+### Polling Logic
+
+The JavaScript in `app/static/js/app.js` handles client-side polling:
+
+- **Interval**: 3,000 ms (3 seconds)
+- **Endpoint**: `GET /api/submissions/<business_id>` (returns JSON)
+- **On update**: Re-renders progress bar width, stat card values, status badges, error messages, and timestamps for each row
+- **On completion**: When `stats.batch_complete` transitions to `true`, polling is stopped via `clearInterval()`, the badge flips to "All Done", and the summary card appears
+- **Stale data**: If the page is loaded after the batch is already complete, polling is never started (initial JS check of `batchComplete`)

@@ -212,7 +212,8 @@ GET /api/submissions/<business_id>
     "in_progress": 2,
     "skipped": 2,
     "captcha": 6,
-    "manual": 4
+    "manual": 4,
+    "batch_complete": false
   },
   "submissions": [
     {
@@ -234,6 +235,20 @@ GET /api/submissions/<business_id>
 }
 ```
 
+**Stats Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `total` | integer | Total number of submission records for this business |
+| `completed` | integer | Submissions marked completed |
+| `failed` | integer | Submissions that failed |
+| `pending` | integer | Submissions awaiting processing |
+| `in_progress` | integer | Submissions currently being processed |
+| `skipped` | integer | Submissions manually skipped |
+| `captcha` | integer | Submissions where CAPTCHA was detected |
+| `manual` | integer | Submissions requiring manual action |
+| `batch_complete` | boolean | True when all submissions for this business have reached a terminal status (completed/failed/skipped). Used by the batch progress page to know when polling is done. |
+
 #### Start Batch Submission
 
 ```
@@ -248,7 +263,7 @@ Initiates batch submission for a business to selected (or all) directories. This
 |---|---|---|
 | `directories` | string (optional) | Comma-separated directory names to submit to. If omitted, submits to all directories. |
 
-**Response:** HTTP 302 redirect to the business view page with a flash message.
+**Response:** HTTP 302 redirect to the batch progress page (`/businesses/<id>/batch-progress`) with a flash message.
 
 ---
 

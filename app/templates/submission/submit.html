@@ -26,7 +26,7 @@
         <div style="margin-bottom: 1rem;">
             <button type="button" onclick="toggleAll(true)" class="btn btn-sm">Select All</button>
             <button type="button" onclick="toggleAll(false)" class="btn btn-sm">Deselect All</button>
-            <button type="button" onclick="selectPending()" class="btn btn-sm">Select Pending Only</button>
+            <button type="button" onclick="selectReady()" class="btn btn-sm">Select Ready</button>
         </div>
 
         <table>
@@ -80,7 +80,7 @@ function toggleAll(checked) {
     document.querySelectorAll('.dir-checkbox:not(:disabled)').forEach(cb => cb.checked = checked);
     document.getElementById('select-all').checked = checked;
 }
-function selectPending() {
+function selectReady() {
     document.querySelectorAll('.dir-checkbox').forEach(cb => {
         if (!cb.disabled) cb.checked = true;
     });

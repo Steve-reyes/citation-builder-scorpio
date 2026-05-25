@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Batch Progress - {{ business.business_name }} - Citation Builder{% endblock %}
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-6">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-bold" style="color: #e0e0e0;">Batch Submission Progress</h1>
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+      <div>
+      <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #e0e0e0;">Batch Submission Progress</h1>
       <p class="text-muted" style="margin-top: 0.25rem;">{{ business.business_name }}</p>
     </div>
     <div id="batch-status-badge">
@@ -18,8 +18,8 @@
   </div>
 
   <!-- Progress Bar -->
-  <div class="card">
-    <div class="flex items-center justify-between mb-2">
+<div class="card" style="margin-bottom: 0.75rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
       <span class="text-muted" style="font-size: 0.9rem; font-weight: 600;">Overall Progress</span>
       <span class="text-muted" id="progress-count">
         {% set done = stats.completed + stats.failed + stats.skipped %}
@@ -245,4 +245,5 @@
   }
 })();
 </script>
+</div>
 {% endblock %}

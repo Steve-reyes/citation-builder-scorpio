@@ -81,12 +81,14 @@
             <tr>
                 <td>{{ s.directory_name }}</td>
                 <td>
+                    {%- if s.status == 'completed' or s.status == 'manual' %}
                     {%- if s.listing_url %}
                     <a href="{{ s.listing_url }}" target="_blank" rel="noopener" title="{{ s.listing_url }}">📍 {{ s.listing_url[:35] }}{% if s.listing_url|length > 35 %}…{% endif %}</a>
                     {%- elif s.submission_url %}
                     <a href="{{ s.submission_url }}" target="_blank" rel="noopener" title="{{ s.submission_url }}">🔗 {{ s.submission_url[:35] }}{% if s.submission_url|length > 35 %}…{% endif %}</a>
                     {%- elif s.directory_url %}
                     <a href="{{ s.directory_url }}" target="_blank" rel="noopener" title="{{ s.directory_url }}">{{ s.directory_url[:35] }}{% if s.directory_url|length > 35 %}…{% endif %}</a>
+                    {%- else %}-{% endif %}
                     {%- else %}-{% endif %}
                 </td>
                 <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>

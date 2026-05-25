@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Analytics - Citation Builder{% endblock %}
+{% block content %}
+<style>
+  .chart-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .chart-container h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
+  .chart-container canvas { max-height: 300px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; text-align: center; transition: all 0.2s; }
+  .stat-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .stat-card .value { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
+  .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid var(--border); white-space: nowrap; }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: 0.875rem; }
+  tr:hover td { background: rgba(59,130,246,0.03); }
+  .badge { display: inline-flex; align-items: center; padding: 0.125rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+  .badge-success { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; }
+  .badge-warning { background: rgba(234,179,8,0.15); color: #fbbf24; }
+  .badge-info { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .badge-gray { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+
+<h1>Analytics</h1>
+
+<!-- Overview Cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="value">{{ total }}</div>
+    <div class="label">Total Submissions</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ success_rate }}%</div>
+    <div class="label">Success Rate</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ avg_per_business }}</div>
+    <div class="label">Avg Submissions / Business</div>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ captcha_count }}</div>
+    <div class="label">CAPTCHA Detected</div>
+  </div>
+</div>
+
+<!-- Row: Donut + Daily Bar -->
+<div class="chart-row">
+  <!-- Donut Chart: Status Breakdown -->
+  <div class="chart-container">
+    <h2>Submission Status Breakdown</h2>
+    <canvas id="statusChart"></canvas>
+  </div>
+  <!-- Bar Chart: Daily Trends -->
+  <div class="chart-container">
+    <h2>Submissions Per Day (Last 14 Days)</h2>
+    <canvas id="dailyChart"></canvas>
+  </div>
+</div>
+
+<!-- Row: Difficulty Bar + empty -->
+<div class="chart-row">
+  <!-- Bar Chart: Difficulty Performance -->
+  <div class="chart-container">
+    <h2>Success Rate by Directory Difficulty</h2>
+    <canvas id="difficultyChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <h2>Difficulty Overview</h2>
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; justify-content: center; height: calc(100% - 2.5rem);">
+      {% for key in ['easy', 'medium', 'hard'] %}
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-size: 0.9rem; text-transform: capitalize;">{{ key }}</span>
+          <span style="color: var(--text-primary); font-weight: 600;">{{ diff_rate[key]['rate'] }}% ({{ diff_rate[key]['completed'] }}/{{ diff_rate[key]['total'] }})</span>
+        </div>
+        <div class="progress-bar" style="height: 10px; border-radius: 9999px; background: var(--border); overflow: hidden;">
+          <div class="progress-fill" style="width: {{ diff_rate[key]['rate'] }}%; height: 100%; border-radius: 9999px;
+            background: {% if key == 'easy' %}#22c55e{% elif key == 'medium' %}#eab308{% else %}#ef4444{% endif %};
+          "></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Tables Row: Top 10 Best / Worst Directories -->
+<div class="two-col">
+  <div class="chart-container">
+    <h2>🏆 Top 10 Best-Performing Directories</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Directory</th>
+          <th>Completed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dir_name, cnt in top_dirs %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ dir_name }}</td>
+          <td><span class="badge badge-success">{{ cnt }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No data yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="chart-container">
+    <h2>🔥 Top 10 Worst-Performing Directories</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Directory</th>
+          <th>Failed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dir_name, cnt in worst_dirs %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ dir_name }}</td>
+          <td><span class="badge badge-danger">{{ cnt }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No data yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // ── Status Donut Chart ──
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ status_labels | tojson }},
+      datasets: [{
+        data: {{ status_counts | tojson }},
+        backgroundColor: ['#22c55e', '#ef4444', '#eab308', '#3b82f6', '#94a3b8'],
+        borderColor: '#1e293b',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', padding: 16, usePointStyle: true }
+        }
+      }
+    }
+  });
+
+  // ── Daily Bar Chart ──
+  const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+  new Chart(dailyCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ date_range | tojson }},
+      datasets: [{
+        label: 'Submissions',
+        data: {{ daily_counts | tojson }},
+        backgroundColor: '#3b82f6',
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8', maxTicksLimit: 7 },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#94a3b8', precision: 0 },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        }
+      }
+    }
+  });
+
+  // ── Difficulty Bar Chart ──
+  const diffCtx = document.getElementById('difficultyChart').getContext('2d');
+  new Chart(diffCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Easy', 'Medium', 'Hard'],
+      datasets: [
+        {
+          label: 'Completed',
+          data: [
+            {{ diff_rate['easy']['completed'] }},
+            {{ diff_rate['medium']['completed'] }},
+            {{ diff_rate['hard']['completed'] }}
+          ],
+          backgroundColor: '#22c55e',
+          borderRadius: 4,
+        },
+        {
+          label: 'Total',
+          data: [
+            {{ diff_rate['easy']['total'] }},
+            {{ diff_rate['medium']['total'] }},
+            {{ diff_rate['hard']['total'] }}
+          ],
+          backgroundColor: '#475569',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', padding: 12, usePointStyle: true }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8' },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#94a3b8', precision: 0 },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

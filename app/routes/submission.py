@@ -240,6 +240,18 @@ def skip_submission(id):
     return redirect(url_for('business.view_business', id=submission.business_id))
 
 
+@submission_bp.route('/api/submissions/<int:id>/listing-url', methods=['POST'])
+def api_set_listing_url(id):
+    submission = DirectorySubmission.query.get_or_404(id)
+    data = request.get_json(silent=True)
+    url = (data or {}).get('url', '').strip()
+    if url:
+        submission.listing_url = url
+        db.session.commit()
+        return jsonify({'success': True, 'listing_url': url})
+    return jsonify({'success': False, 'error': 'url required'}), 400
+
+
 @submission_bp.route('/captcha-queue')
 def captcha_queue():
     """Show all submissions with CAPTCHA detected (manual or captcha_detected)."""

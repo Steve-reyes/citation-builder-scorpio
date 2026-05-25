@@ -95,6 +95,7 @@
                 <td>{{ s.error_message[:40] ~ '...' if s.error_message and s.error_message|length > 40 else s.error_message or '-' }}</td>
                 <td>{{ s.submitted_at.strftime('%Y-%m-%d %H:%M') if s.submitted_at else '-' }}</td>
                 <td>
+                    <button class="btn btn-sm btn-outline" onclick="setListingUrl({{ s.id }})" title="Set listing URL">✏️</button>
                     {% if s.status == 'failed' %}
                     <form method="POST" action="{{ url_for('submission.retry_submission', id=s.id) }}" style="display:inline">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -115,4 +116,28 @@
     <p class="text-muted">No submissions yet. <a href="{{ url_for('submission.submit_page', id=business.id) }}">Start submitting</a> to directories.</p>
     {% endif %}
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+function setListingUrl(submissionId) {
+    var currentUrl = prompt('Paste the actual listing URL (the live page where this business appears on the directory):');
+    if (!currentUrl || currentUrl.trim() === '') return;
+    fetch('/api/submissions/' + submissionId + '/listing-url', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: currentUrl.trim()})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'unknown'));
+        }
+    })
+    .catch(function(err) {
+        alert('Network error: ' + err);
+    });
+}
+</script>
 {% endblock %}
